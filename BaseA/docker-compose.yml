@@ -1,16 +1,23 @@
 version: '3.5'
 services:
     postgresql:
-        image: postgres
+        image: postgres:13-alpine
         container_name: postgresql
         environment:
-            - POSTGRES_DB=clients
-            - POSTGRES_USER=username
-            - POSTGRES_PASSWORD=senhasecreta
+            - POSTGRES_DB=citzens_financial_data
+            - POSTGRES_USER=test
+            - POSTGRES_PASSWORD=test
+            - PGDATA=/data/postgres
         ports:
-            - "15432:5432"
+            - 15432:5432
         volumes:
-            - "postgres_volume:/var/lib/postgresql/data"
+            - postgres_volume:/data/postgres
+            - ./utils/tables/citzen_table.sql:/docker-entrypoint-initdb.d/1.sql
+            - ./utils/tables/address.sql:/docker-entrypoint-initdb.d/2.sql
+            - ./utils/tables/debts.sql:/docker-entrypoint-initdb.d/3.sql
+            - ./utils/initial_data/debts.sql:/docker-entrypoint-initdb.d/5.sql
+            - ./utils/initial_data/citzen.sql:/docker-entrypoint-initdb.d/4.sql
+            - ./utils/initial_data/address.sql:/docker-entrypoint-initdb.d/6.sql
         networks:
             - internal_comunication
 
