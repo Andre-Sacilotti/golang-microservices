@@ -1,0 +1,11 @@
+basePath: /
+host: localhost:8080
+info:
+  contact:
+    email: andre.sacilotti@gmail.com
+    name: André Sacilotti
+  description: REST API to authenticate bearer token
+  title: Auth API
+  version: "1.0"
+paths: {}
+swagger: "2.0"
