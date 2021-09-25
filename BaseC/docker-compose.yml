@@ -1,0 +1,50 @@
+version: '3.5'
+services:
+    mysqlbasec:
+        image: mysql
+        container_name: mysqlbasec
+        environment:
+            - MYSQL_DATABASE=cpfevents_db
+            - MYSQL_ROOT_PASSWORD=senhasecreta
+        ports:
+            - "3306:3306"
+        volumes:
+            - mysql_basec_volume:/var/lib/mysql
+            - "./utils/mysql_initdb.sql:/docker-entrypoint-initdb.d/1.sql"
+        networks:
+            - internal_comunication
+
+    logstashsync:
+        image: logstash:7.9.3
+        container_name: logstashsync
+        networks: 
+            - internal_comunication
+        volumes:
+            - ./utils/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+            - ./utils/mysql-connector-java-8.0.16.jar:/usr/share/logstash/mysql-connector-java-8.0.16.jar
+
+
+    elasticsearch:
+        image: elasticsearch:7.9.3
+        container_name: elasticsync
+        environment:
+            discovery.type: "single-node"
+            ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+            xpack.monitoring.enabled: "true"
+        ports:
+            - "9200:9200"
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: '2m'
+                max-file: '5'
+        networks:
+            - internal_comunication
+
+volumes:
+    mysql_basec_volume:
+
+networks:
+    internal_comunication:
+        external: true
+        name: internal_comunication
