@@ -1,7 +1,8 @@
 version: '3.5'
 services:
-    mysql-container:
+    postgresql:
         image: postgres
+        container_name: postgresql
         environment:
             - POSTGRES_DB=clients
             - POSTGRES_USER=username
@@ -9,9 +10,12 @@ services:
         ports:
             - "15432:5432"
         volumes:
-            - "./data:/var/lib/postgresql/data"
+            - "postgres_volume:/var/lib/postgresql/data"
         networks:
             - internal_comunication
+
+volumes:
+    postgres_volume:
 
 networks:
     internal_comunication:
