@@ -4,6 +4,6 @@ up-infra:
 	docker-compose -f ./BaseB/docker-compose.yml up -d 
 
 down-infra:
-	docker-compose -f ./BaseA/docker-compose.yml down
-	docker-compose -f ./BaseB/docker-compose.yml down
+	docker-compose -f ./BaseA/docker-compose.yml down --volumes
+	docker-compose -f ./BaseB/docker-compose.yml down --volumes
 	docker network rm internal_comunication
