@@ -1,5 +1,15 @@
 basePath: /auth
 definitions:
+  delivery.AuthResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  delivery.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
   delivery.Response:
     properties:
       token:
@@ -26,7 +36,7 @@ info:
   title: Auth API
   version: "1.0"
 paths:
-  /login:
+  /authenticate:
     get:
       consumes:
       - application/json
@@ -44,11 +54,18 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/delivery.Response'
+              $ref: '#/definitions/delivery.AuthResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            items:
+              $ref: '#/definitions/delivery.ErrorResponse'
             type: array
       summary: Authenticate a token
       tags:
       - Auth
+  /login:
     post:
       consumes:
       - application/json
@@ -67,7 +84,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/delivery.Response'
+              $ref: '#/definitions/delivery.ErrorResponse'
             type: array
       summary: Login and get a authentication token
       tags:

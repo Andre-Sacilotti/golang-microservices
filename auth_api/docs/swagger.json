@@ -12,7 +12,7 @@
     "host": "0.0.0.0:81",
     "basePath": "/auth",
     "paths": {
-        "/login": {
+        "/authenticate": {
             "get": {
                 "description": "Authenticate a token",
                 "consumes": [
@@ -40,12 +40,23 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/delivery.Response"
+                                "$ref": "#/definitions/delivery.AuthResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/delivery.ErrorResponse"
                             }
                         }
                     }
                 }
-            },
+            }
+        },
+        "/login": {
             "post": {
                 "description": "Get an JWT authentication token",
                 "consumes": [
@@ -75,7 +86,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/delivery.Response"
+                                "$ref": "#/definitions/delivery.ErrorResponse"
                             }
                         }
                     }
@@ -84,6 +95,22 @@
         }
     },
     "definitions": {
+        "delivery.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "delivery.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
         "delivery.Response": {
             "type": "object",
             "properties": {

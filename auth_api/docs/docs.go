@@ -26,7 +26,7 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/login": {
+        "/authenticate": {
             "get": {
                 "description": "Authenticate a token",
                 "consumes": [
@@ -54,12 +54,23 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/delivery.Response"
+                                "$ref": "#/definitions/delivery.AuthResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/delivery.ErrorResponse"
                             }
                         }
                     }
                 }
-            },
+            }
+        },
+        "/login": {
             "post": {
                 "description": "Get an JWT authentication token",
                 "consumes": [
@@ -89,7 +100,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/delivery.Response"
+                                "$ref": "#/definitions/delivery.ErrorResponse"
                             }
                         }
                     }
@@ -98,6 +109,22 @@ var doc = `{
         }
     },
     "definitions": {
+        "delivery.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "delivery.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
         "delivery.Response": {
             "type": "object",
             "properties": {

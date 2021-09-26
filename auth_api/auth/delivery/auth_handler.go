@@ -13,6 +13,14 @@ type Response struct {
 	TokenType string `json:"token_type"`
 }
 
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+type AuthResponse struct {
+	Message string `json:"message"`
+}
+
 type AuthHandler struct {
 	AuthUsecase domain.AuthUsecase
 }
@@ -33,6 +41,7 @@ func AuthHandlerInterface(router *mux.Router, au domain.AuthUsecase) {
 	handler := &AuthHandler{au}
 
 	router.HandleFunc("/auth/login", handler.Login).Methods("POST")
+	router.HandleFunc("/auth/authenticate", handler.Authenticate).Methods("GET")
 }
 
 // Login godoc
@@ -42,7 +51,8 @@ func AuthHandlerInterface(router *mux.Router, au domain.AuthUsecase) {
 // @Accept  json
 // @Produce  json
 // @Param credentials body domain.Auth true "Login credentials must have an username and a password"
-// @Success 200 {array} Response
+// @Success 200 Response
+// @Success 200 ErrorResponse
 // @Router /login [post]
 func (AuthHandler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -74,9 +84,16 @@ func (AuthHandler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 // @Param Authorization header string true "Insert your access token"
 // @Accept  json
 // @Produce  json
-// @Success 200 {array} Response
-// @Router / [get]
+// @Success 200 AuthResponse
+// @Success 401 ErrorResponse
+// @Router /authenticate [get]
 func (AuthHandler *AuthHandler) Authenticate(w http.ResponseWriter, r *http.Request) {
 	var header = r.Header.Get("Authorization")
-	print(header)
+	isValid := AuthHandler.AuthUsecase.Authenticate(header)
+
+	if isValid {
+		respondWithJSON(w, http.StatusOK, AuthResponse{"Authorized"})
+		return
+	}
+	respondWithError(w, http.StatusUnauthorized, "Not authorized")
 }

@@ -7,6 +7,7 @@ type Auth struct {
 
 type AuthUsecase interface {
 	Login(User string, password string) (bool, string)
+	Authenticate(token string) bool
 }
 
 type AuthRepository interface {
