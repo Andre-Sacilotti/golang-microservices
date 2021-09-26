@@ -12,7 +12,7 @@ type mysqlAuthRepository struct {
 	Conn *gorm.DB
 }
 
-func NewMysqlAuthRepository(Conn *gorm.DB) domain.AuthRepository {
+func AuthRepositoryInterface(Conn *gorm.DB) domain.AuthRepository {
 	return &mysqlAuthRepository{Conn}
 }
 

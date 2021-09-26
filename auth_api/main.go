@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/Andre-Sacilotti/golang-credit-backend/auth_api/auth/repository"
+	"github.com/Andre-Sacilotti/golang-credit-backend/auth_api/auth/usecase"
 	_ "github.com/Andre-Sacilotti/golang-credit-backend/auth_api/docs"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/driver/postgres"
@@ -43,8 +43,9 @@ func main() {
 
 	router := mux.NewRouter()
 
-	ar := repository.NewMysqlAuthRepository(db)
-	fmt.Println(ar.Search("andrae"))
+	ar := repository.AuthRepositoryInterface(db)
+	au := usecase.UsecaseInterface(ar)
+
 	router.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
 	log.Fatal(http.ListenAndServe(":80", router))
 

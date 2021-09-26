@@ -7,7 +7,7 @@ type Auth struct {
 }
 
 type AuthUsecase interface {
-	Search(User string) (Auth, error)
+	Authenticate(User string, password string) bool
 }
 
 type AuthRepository interface {
