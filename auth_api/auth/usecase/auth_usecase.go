@@ -1,9 +1,11 @@
 package usecase
 
 import (
-	"fmt"
+	"os"
+	"time"
 
 	"github.com/Andre-Sacilotti/golang-credit-backend/auth_api/domain"
+	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -15,20 +17,33 @@ func UsecaseInterface(a domain.AuthRepository) domain.AuthUsecase {
 	return &AuthUsecase{a}
 }
 
-func (AuthUC *AuthUsecase) Authenticate(user string, password string) (is_authenticated bool) {
+func GenerateToken(user string) (string, error) {
+	atClaims := jwt.MapClaims{}
+	atClaims["authorized"] = true
+	atClaims["user_id"] = user
+	atClaims["exp"] = time.Now().Add(time.Hour * 196).Unix()
+	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
+	token, err := at.SignedString([]byte(os.Getenv("TOKEN_SECRET")))
+
+	return token, err
+}
+
+func (AuthUC *AuthUsecase) Login(user string, password string) (is_authenticated bool, token string) {
 
 	res, err := AuthUC.AuthRepo.Search(user)
 
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), 15)
 	if err != nil {
-		return false
+		return false, ""
 	}
-	fmt.Println(string(hashedPassword))
 
-	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(res.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(res.Password), []byte(password))
 
-	fmt.Println(err)
+	if err != nil {
+		return false, ""
+	}
 
-	return err != nil
+	token, _ = GenerateToken(user)
+
+	return true, token
 
 }

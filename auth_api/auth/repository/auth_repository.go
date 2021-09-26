@@ -20,12 +20,12 @@ func (AuthRepo *mysqlAuthRepository) Search(user string) (res domain.Auth, err e
 	var auth domain.Auth
 
 	if result := AuthRepo.Conn.First(&auth, "Username = ?", user); result.Error != nil {
-		fmt.Println(result.Error)
+
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return auth, domain.ErrNotFound
 		}
 		return
 	}
-
+	fmt.Println(auth)
 	return auth, err
 }

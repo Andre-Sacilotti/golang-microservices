@@ -1,13 +1,12 @@
 package domain
 
 type Auth struct {
-	ID       int64  `json:"id"`
-	Username string `json:"title" validate:"required"`
-	Password string `json:"content" validate:"required"`
+	Username string `json:"user" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type AuthUsecase interface {
-	Authenticate(User string, password string) bool
+	Login(User string, password string) (bool, string)
 }
 
 type AuthRepository interface {

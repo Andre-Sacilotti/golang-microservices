@@ -1,11 +1,75 @@
-basePath: /
-host: localhost:8080
+basePath: /auth
+definitions:
+  delivery.Response:
+    properties:
+      token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  domain.Auth:
+    properties:
+      password:
+        type: string
+      user:
+        type: string
+    required:
+    - password
+    - user
+    type: object
+host: 0.0.0.0:81
 info:
   contact:
     email: andre.sacilotti@gmail.com
     name: André Sacilotti
-  description: REST API to authenticate bearer token
+  description: REST API to login and authenticate a token
   title: Auth API
   version: "1.0"
-paths: {}
+paths:
+  /login:
+    get:
+      consumes:
+      - application/json
+      description: Authenticate a token
+      parameters:
+      - description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/delivery.Response'
+            type: array
+      summary: Authenticate a token
+      tags:
+      - Auth
+    post:
+      consumes:
+      - application/json
+      description: Get an JWT authentication token
+      parameters:
+      - description: Login credentials must have an username and a password
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Auth'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/delivery.Response'
+            type: array
+      summary: Login and get a authentication token
+      tags:
+      - Auth
 swagger: "2.0"

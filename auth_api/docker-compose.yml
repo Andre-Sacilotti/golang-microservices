@@ -1,7 +1,9 @@
 version: '3.5'
 services:
     postgresql_auth:
-        image: postgres:13-alpine
+        build:
+            context: .
+            dockerfile: psqlDockerfile
         container_name: postgresql_auth
         environment:
             - POSTGRES_DB=auth_users
@@ -10,6 +12,7 @@ services:
             - PGDATA=/data/postgres
         ports:
             - 15433:5433
+        command: echo "aaaaaaaaaaaa"
         command: -p 5433
         volumes:
             - postgres_volume:/data/postgres
@@ -22,8 +25,10 @@ services:
         depends_on: 
             - postgresql_auth
         container_name: auth_api
+        environment: 
+            - TOKEN_SECRET=lkdfkljgkergjmnkdfdfdf11
         ports: 
-            - 80:80
+            - 81:81
         networks:
             - internal_comunication_auth_api
             - internal_comunication
