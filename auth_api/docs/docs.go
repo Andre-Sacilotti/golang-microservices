@@ -52,19 +52,13 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/delivery.AuthResponse"
-                            }
+                            "$ref": "#/definitions/delivery.AuthResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/delivery.ErrorResponse"
-                            }
+                            "$ref": "#/definitions/delivery.ErrorResponse"
                         }
                     }
                 }
@@ -98,10 +92,13 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/delivery.ErrorResponse"
-                            }
+                            "$ref": "#/definitions/delivery.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
                         }
                     }
                 }

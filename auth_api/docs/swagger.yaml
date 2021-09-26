@@ -53,15 +53,11 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/delivery.AuthResponse'
-            type: array
+            $ref: '#/definitions/delivery.AuthResponse'
         "401":
           description: Unauthorized
           schema:
-            items:
-              $ref: '#/definitions/delivery.ErrorResponse'
-            type: array
+            $ref: '#/definitions/delivery.ErrorResponse'
       summary: Authenticate a token
       tags:
       - Auth
@@ -83,9 +79,11 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/delivery.ErrorResponse'
-            type: array
+            $ref: '#/definitions/delivery.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
       summary: Login and get a authentication token
       tags:
       - Auth

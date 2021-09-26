@@ -51,8 +51,8 @@ func AuthHandlerInterface(router *mux.Router, au domain.AuthUsecase) {
 // @Accept  json
 // @Produce  json
 // @Param credentials body domain.Auth true "Login credentials must have an username and a password"
-// @Success 200 Response
-// @Success 200 ErrorResponse
+// @Success 200 {object} Response
+// @Failure 401 {object} ErrorResponse
 // @Router /login [post]
 func (AuthHandler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -84,8 +84,8 @@ func (AuthHandler *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 // @Param Authorization header string true "Insert your access token"
 // @Accept  json
 // @Produce  json
-// @Success 200 AuthResponse
-// @Success 401 ErrorResponse
+// @Success 200 {object} AuthResponse
+// @Failure 401 {object} ErrorResponse
 // @Router /authenticate [get]
 func (AuthHandler *AuthHandler) Authenticate(w http.ResponseWriter, r *http.Request) {
 	var header = r.Header.Get("Authorization")
