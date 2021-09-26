@@ -1,8 +1,8 @@
 version: '3.5'
 services:
-    postgresql:
+    postgresql_auth:
         image: postgres:13-alpine
-        container_name: postgresql
+        container_name: postgresql_auth
         environment:
             - POSTGRES_DB=auth_users
             - POSTGRES_USER=test
@@ -13,11 +13,14 @@ services:
         command: -p 5433
         volumes:
             - postgres_volume:/data/postgres
+            - ./utils/tables/auth_table.sql:/docker-entrypoint-initdb.d/1.sql
         networks:
             - internal_comunication_auth_api
 
     auth_api:
         build: .
+        depends_on: 
+            - postgresql_auth
         container_name: auth_api
         ports: 
             - 80:80
@@ -32,3 +35,6 @@ networks:
     internal_comunication:
         external: true
         name: internal_comunication
+
+volumes:
+    postgres_volume:
