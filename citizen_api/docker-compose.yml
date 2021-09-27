@@ -1,0 +1,16 @@
+version: '3.5'
+services:
+    citizen_api:
+        build: .
+        container_name: citizen_api
+        environment: 
+            - TOKEN_SECRET=lkdfkljgkergjmnkdfdfdf11
+        ports: 
+            - 82:82
+        networks:
+            - internal_comunication
+
+networks:
+    internal_comunication:
+        external: true
+        name: internal_comunication
