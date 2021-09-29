@@ -44,6 +44,13 @@ type CitizenRepository interface {
 	GetDebtsByCitizenId(ID int) (res []Debt, err error)
 	GetAddressByCitizenId(ID int) (res []Address, err error)
 	GetAllCitizen() (res []Citizen, err error)
+	InsertNewAddress(Address, int) (Address, error)
+	InsertNewDebt(Debt, int) (Debt, error)
+	UpdateCitizenByID(Citizen, int) (Citizen, error)
+	DeleteDebt(int) (Debt, error)
+	DeleteAddress(int) (Address, error)
+	UpdateAddress(Address, int) (Address, error)
+	UpdateDebt(Debt, int) (Debt, error)
 }
 
 type CitizenUsecase interface {

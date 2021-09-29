@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/citizen/models"
 	"github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/domain"
@@ -21,7 +22,7 @@ func (CitizenRepo *mysqlCitizenRepository) GetDebtsByCitizenId(ID int) (res []do
 	var debts []domain.Debt
 	var dcrypted_debts []domain.Debt
 
-	if result := CitizenRepo.Conn.First(&debts, "debtor_id = ?", ID); result.Error != nil {
+	if result := CitizenRepo.Conn.Find(&debts, "debtor_id = ?", ID); result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return debts, domain.ErrNotFound
 		}
@@ -29,6 +30,9 @@ func (CitizenRepo *mysqlCitizenRepository) GetDebtsByCitizenId(ID int) (res []do
 	}
 
 	for _, element := range debts {
+		fmt.Println("LOOP DOS DEBTOS")
+		fmt.Println(element.ID)
+		fmt.Println(element.DebtorID)
 		tmp_debt := domain.Debt{ID: element.ID, DebtorID: element.DebtorID, Value: element.Value,
 			WasNegociated: element.WasNegociated, CreditTakenAt: element.CreditTakenAt,
 			CreditTurnedDebitAt: element.CreditTurnedDebitAt,
@@ -45,7 +49,7 @@ func (CitizenRepo *mysqlCitizenRepository) GetAddressByCitizenId(ID int) (res []
 	var address []domain.Address
 	var decrypted_address []domain.Address
 
-	if result := CitizenRepo.Conn.First(&address, "citizen_id = ?", ID); result.Error != nil {
+	if result := CitizenRepo.Conn.Find(&address, "citizen_id = ?", ID); result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return address, domain.ErrNotFound
 		}
@@ -141,7 +145,7 @@ func (CitizenRepo *mysqlCitizenRepository) InsertNewAddress(Address domain.Addre
 
 		return Address, result.Error
 	}
-
+	Address.ID = AddressModel.ID
 	return Address, err
 
 }
@@ -156,7 +160,7 @@ func (CitizenRepo *mysqlCitizenRepository) InsertNewDebt(Debt domain.Debt, Citiz
 
 		return Debt, result.Error
 	}
-
+	Debt.ID = DebtModel.ID
 	return Debt, err
 
 }
@@ -182,10 +186,10 @@ func (CitizenRepo *mysqlCitizenRepository) CreateCitizen(citizen domain.Citizen)
 	return return_citizen, err
 }
 
-func (CitizenRepo *mysqlCitizenRepository) UpdateCitizenByID(Citizen domain.Citizen) (res domain.Citizen, err error) {
-	CitizenWithId, _ := CitizenRepo.GetCitizenByCPF(Citizen.CPF)
-	CitizenOldDebts, _ := CitizenRepo.GetDebtsByCitizenId(CitizenWithId.ID)
-	CitizenOldAddress, _ := CitizenRepo.GetAddressByCitizenId(CitizenWithId.ID)
+func (CitizenRepo *mysqlCitizenRepository) UpdateCitizenByID(Citizen domain.Citizen, ID int) (res domain.Citizen, err error) {
+	CitizenWithId, _ := CitizenRepo.GetCitizenByID(ID)
+	CitizenOldDebts, _ := CitizenRepo.GetDebtsByCitizenId(ID)
+	CitizenOldAddress, _ := CitizenRepo.GetAddressByCitizenId(ID)
 
 	for _, OldDebt := range CitizenOldDebts {
 		DebtExists := false
@@ -210,7 +214,7 @@ func (CitizenRepo *mysqlCitizenRepository) UpdateCitizenByID(Citizen domain.Citi
 		}
 
 		if !DebtExists {
-			CitizenRepo.InsertNewDebt(Debt, CitizenWithId.ID)
+			CitizenRepo.InsertNewDebt(Debt, ID)
 		}
 
 	}
@@ -237,7 +241,7 @@ func (CitizenRepo *mysqlCitizenRepository) UpdateCitizenByID(Citizen domain.Citi
 		}
 
 		if !AddressExists {
-			CitizenRepo.InsertNewAddress(Address, CitizenWithId.ID)
+			CitizenRepo.InsertNewAddress(Address, ID)
 		}
 
 	}
@@ -269,9 +273,15 @@ func (CitizenRepo *mysqlCitizenRepository) DeleteDebt(ID int) (res domain.Debt, 
 
 }
 
-// func (CitizenRepo *mysqlCitizenRepository) UpdateDebt(ID int) (res domain.Debt, err error) {
-// 	return
-// }
+func (CitizenRepo *mysqlCitizenRepository) UpdateDebt(Debt domain.Debt, ID int) (res domain.Debt, err error) {
+	DebtModel := domain.Debt{ID: Debt.ID, DebtorID: Debt.DebtorID, Value: Debt.Value,
+		WasNegociated: Debt.WasNegociated, CreditTakenAt: Debt.CreditTakenAt,
+		CreditTurnedDebitAt: Debt.CreditTurnedDebitAt, Deleted: true,
+	}
+	CitizenRepo.Conn.Model(&models.Debt{}).Where("debtor_id", ID).UpdateColumns(DebtModel)
+
+	return Debt, err
+}
 
 func (CitizenRepo *mysqlCitizenRepository) DeleteAddress(ID int) (res domain.Address, err error) {
 	var Address models.Address
@@ -284,15 +294,24 @@ func (CitizenRepo *mysqlCitizenRepository) DeleteAddress(ID int) (res domain.Add
 		return
 	}
 	CitizenRepo.Conn.Model(&Address).Update("deleted", true)
-	TmpDebt := domain.Address{CitizenId: Address.ID, PostalCode: utils.Decrypt(Address.PostalCode),
+	TmpAddress := domain.Address{ID: Address.ID, CitizenId: Address.ID, PostalCode: utils.Decrypt(Address.PostalCode),
 		Address: utils.Decrypt(Address.Address), Number: utils.Decrypt(Address.Number),
 		Complement: utils.Decrypt(Address.Complement), Neighbourhood: utils.Decrypt(Address.Neighbourhood),
 		City: utils.Decrypt(Address.City), State: utils.Decrypt(Address.State), Country: utils.Decrypt(Address.Country),
 		Deleted: true,
 	}
-	return TmpDebt, err
+	return TmpAddress, err
 }
 
-// func (CitizenRepo *mysqlCitizenRepository) UpdateAddress(ID int) (res domain.Citizen, err error) {
-// 	return
-// }
+func (CitizenRepo *mysqlCitizenRepository) UpdateAddress(Address domain.Address, ID int) (res domain.Address, err error) {
+	AddressModel := domain.Address{ID: ID, CitizenId: Address.ID, PostalCode: utils.Encrypt(Address.PostalCode),
+		Address: utils.Encrypt(Address.Address), Number: utils.Encrypt(Address.Number),
+		Complement: utils.Decrypt(Address.Complement), Neighbourhood: utils.Encrypt(Address.Neighbourhood),
+		City: utils.Encrypt(Address.City), State: utils.Encrypt(Address.State), Country: utils.Encrypt(Address.Country),
+		Deleted: Address.Deleted,
+	}
+
+	CitizenRepo.Conn.Model(&models.Address{}).Where("citizen_id", ID).UpdateColumns(AddressModel)
+
+	return Address, err
+}

@@ -4,7 +4,6 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	b64 "encoding/base64"
-	"fmt"
 	"os"
 )
 
@@ -33,12 +32,10 @@ func Decrypt(EncryptedText string) string {
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Println("111111111111111")
 	aesgcm, err := cipher.NewGCM(block)
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Println("1112222222222")
 	plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		panic(err.Error())
