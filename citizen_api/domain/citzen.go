@@ -25,7 +25,7 @@ type Debt struct {
 }
 
 type Citizen struct {
-	ID        int       `gorm:"primaryKey"`
+	ID        int       `gorm:"primaryKey;autoIncrement" json:",omitempty"`
 	Name      string    `json:"password" validate:"required" gorm:"index"`
 	CPF       string    `json:"cpf" validate:"required"`
 	Birthdate time.Time `json:"birthdate" validate:"required"`

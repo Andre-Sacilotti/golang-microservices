@@ -5,6 +5,7 @@ import (
 
 	"github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/citizen/models"
 	"github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/domain"
+	"github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/utils"
 	"gorm.io/gorm"
 )
 
@@ -48,23 +49,17 @@ func (CitizenRepo *mysqlCitizenRepository) GetCitizenByID(ID int) (res domain.Ci
 	if result := CitizenRepo.Conn.First(&citizen, "id = ?", ID); result.Error != nil {
 
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-
-			debts, _ := CitizenRepo.GetDebtsByCitizenId(ID)
-			address, _ := CitizenRepo.GetAddressByCitizenId(ID)
-
-			return_citizen := domain.Citizen{
-				Name: citizen.Name, CPF: citizen.CPF,
-				Birthdate: citizen.Birthdate, Debts: debts, Address: address,
-			}
+			return_citizen := domain.Citizen{ID: citizen.ID, Name: citizen.Name, CPF: citizen.CPF, Birthdate: citizen.Birthdate}
 			return return_citizen, domain.ErrNotFound
 		}
 		return
 	}
+
 	debts, _ := CitizenRepo.GetDebtsByCitizenId(ID)
 	address, _ := CitizenRepo.GetAddressByCitizenId(ID)
 
 	return_citizen := domain.Citizen{
-		Name: citizen.Name, CPF: citizen.CPF,
+		Name: utils.Decrypt(citizen.Name), CPF: utils.Decrypt(citizen.CPF), ID: citizen.ID,
 		Birthdate: citizen.Birthdate, Debts: debts, Address: address,
 	}
 	return return_citizen, err
@@ -76,12 +71,9 @@ func (CitizenRepo *mysqlCitizenRepository) GetCitizenByCPF(CPF string) (res doma
 
 	if result := CitizenRepo.Conn.First(&citizen, "cpf = ?", CPF); result.Error != nil {
 
-		debts, _ := CitizenRepo.GetDebtsByCitizenId(citizen.ID)
-		address, _ := CitizenRepo.GetAddressByCitizenId(citizen.ID)
-
 		return_citizen := domain.Citizen{
 			Name: citizen.Name, CPF: citizen.CPF,
-			Birthdate: citizen.Birthdate, Debts: debts, Address: address,
+			Birthdate: citizen.Birthdate,
 		}
 
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -94,7 +86,7 @@ func (CitizenRepo *mysqlCitizenRepository) GetCitizenByCPF(CPF string) (res doma
 	address, _ := CitizenRepo.GetAddressByCitizenId(citizen.ID)
 
 	return_citizen := domain.Citizen{
-		Name: citizen.Name, CPF: citizen.CPF,
+		Name: citizen.Name, CPF: citizen.CPF, ID: citizen.ID,
 		Birthdate: citizen.Birthdate, Debts: debts, Address: address,
 	}
 	return return_citizen, err
@@ -108,7 +100,7 @@ func (CitizenRepo *mysqlCitizenRepository) GetAllCitizen() (res []domain.Citizen
 
 	for _, element := range citizens_model {
 
-		tmp_citizen := domain.Citizen{Name: element.Name, CPF: element.CPF, Birthdate: element.Birthdate}
+		tmp_citizen := domain.Citizen{ID: element.ID, Name: element.Name, CPF: element.CPF, Birthdate: element.Birthdate}
 		citizens = append(citizens, tmp_citizen)
 	}
 
@@ -116,14 +108,15 @@ func (CitizenRepo *mysqlCitizenRepository) GetAllCitizen() (res []domain.Citizen
 }
 
 func (CitizenRepo *mysqlCitizenRepository) CreateCitizen(citizen domain.Citizen) (res domain.Citizen, err error) {
-	citizen_model := models.Citizen{Name: citizen.Name, CPF: citizen.CPF, Birthdate: citizen.Birthdate}
+	citizen_model := models.Citizen{Name: utils.Encrypt(citizen.Name),
+		CPF: utils.Encrypt(citizen.CPF), Birthdate: citizen.Birthdate}
 
 	if result := CitizenRepo.Conn.Create(&citizen_model); result.Error != nil {
 
 		return citizen, result.Error
 	}
 
-	return_citizen := domain.Citizen{Name: citizen_model.Name, CPF: citizen_model.CPF, Birthdate: citizen_model.Birthdate}
+	return_citizen := domain.Citizen{ID: citizen_model.ID, Name: citizen_model.Name, CPF: citizen_model.CPF, Birthdate: citizen_model.Birthdate}
 	return return_citizen, err
 }
 
