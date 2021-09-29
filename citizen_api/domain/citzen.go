@@ -5,7 +5,8 @@ import (
 )
 
 type Address struct {
-	CitizenId     int    `json:"citizen_id" gorm:"index;primaryKey"`
+	ID            int    `gorm:"primaryKey;autoIncrement"`
+	CitizenId     int    `json:"citizen_id" gorm:"index"`
 	PostalCode    string `json:"postal_code" validate:"required"`
 	Address       string `json:"address" validate:"required"`
 	Number        string `json:"number" default:"false"`
@@ -14,14 +15,17 @@ type Address struct {
 	City          string `json:"city"`
 	State         string `json:"state"`
 	Country       string `json:"country"`
+	Deleted       bool   `json:"deleted" default:"false"`
 }
 
 type Debt struct {
-	DebtorID            int       `json:"debtor_id" validate:"required" gorm:"index;primaryKey"`
+	ID                  int       `gorm:"primaryKey;autoIncrement"`
+	DebtorID            int       `json:"debtor_id" validate:"required" gorm:"index"`
 	Value               float32   `json:"value" validate:"required"`
 	WasNegociated       bool      `json:"was_negociated" default:"false"`
 	CreditTakenAt       time.Time `json:"credit_taken_at" validate:"required"`
 	CreditTurnedDebitAt time.Time `json:"credit_turned_debit_at"`
+	Deleted             bool      `json:"deleted" default:"false"`
 }
 
 type Citizen struct {

@@ -4,7 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	b64 "encoding/base64"
-	"encoding/hex"
+	"fmt"
 	"os"
 )
 
@@ -26,21 +26,23 @@ func Encrypt(PlainText string) string {
 
 func Decrypt(EncryptedText string) string {
 	key := []byte(os.Getenv("SECRET"))
-	ciphertext, _ := hex.DecodeString(EncryptedText)
+	ciphertext, _ := b64.StdEncoding.DecodeString(EncryptedText)
 	nonce := make([]byte, 12)
+
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		panic(err.Error())
 	}
+	fmt.Println("111111111111111")
 	aesgcm, err := cipher.NewGCM(block)
 	if err != nil {
 		panic(err.Error())
 	}
+	fmt.Println("1112222222222")
 	plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	sDec, _ := b64.StdEncoding.DecodeString(string(plaintext))
-	return string(sDec)
+	return string(plaintext)
 }

@@ -5,6 +5,7 @@ import (
 )
 
 type Address struct {
+	ID            int `gorm:"primaryKey;autoIncrement"`
 	CitizenId     int `gorm:"index;primaryKey"`
 	PostalCode    string
 	Address       string
@@ -14,14 +15,17 @@ type Address struct {
 	City          string
 	State         string
 	Country       string
+	Deleted       bool
 }
 
 type Debt struct {
-	DebtorID            int `gorm:"index;primaryKey"`
+	ID                  int `gorm:"primaryKey;autoIncrement"`
+	DebtorID            int `gorm:"index"`
 	Value               float32
 	WasNegociated       bool
 	CreditTakenAt       time.Time
 	CreditTurnedDebitAt time.Time
+	Deleted             bool
 }
 
 type Citizen struct {
