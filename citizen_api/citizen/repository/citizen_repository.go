@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/citizen/models"
 	"github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/domain"
@@ -10,15 +9,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type mysqlCitizenRepository struct {
+type postgressCitizenRepository struct {
 	Conn *gorm.DB
 }
 
 func CitizenRepositoryInterface(Conn *gorm.DB) domain.CitizenRepository {
-	return &mysqlCitizenRepository{Conn}
+	return &postgressCitizenRepository{Conn}
 }
 
-func (CitizenRepo *mysqlCitizenRepository) GetDebtsByCitizenId(ID int) (res []domain.Debt, err error) {
+func (CitizenRepo *postgressCitizenRepository) GetDebtsByCitizenId(ID int) (res []domain.Debt, err error) {
 	var debts []domain.Debt
 	var dcrypted_debts []domain.Debt
 
@@ -30,9 +29,6 @@ func (CitizenRepo *mysqlCitizenRepository) GetDebtsByCitizenId(ID int) (res []do
 	}
 
 	for _, element := range debts {
-		fmt.Println("LOOP DOS DEBTOS")
-		fmt.Println(element.ID)
-		fmt.Println(element.DebtorID)
 		tmp_debt := domain.Debt{ID: element.ID, DebtorID: element.DebtorID, Value: element.Value,
 			WasNegociated: element.WasNegociated, CreditTakenAt: element.CreditTakenAt,
 			CreditTurnedDebitAt: element.CreditTurnedDebitAt,
@@ -45,7 +41,7 @@ func (CitizenRepo *mysqlCitizenRepository) GetDebtsByCitizenId(ID int) (res []do
 
 }
 
-func (CitizenRepo *mysqlCitizenRepository) GetAddressByCitizenId(ID int) (res []domain.Address, err error) {
+func (CitizenRepo *postgressCitizenRepository) GetAddressByCitizenId(ID int) (res []domain.Address, err error) {
 	var address []domain.Address
 	var decrypted_address []domain.Address
 
@@ -70,7 +66,7 @@ func (CitizenRepo *mysqlCitizenRepository) GetAddressByCitizenId(ID int) (res []
 
 }
 
-func (CitizenRepo *mysqlCitizenRepository) GetCitizenByID(ID int) (res domain.Citizen, err error) {
+func (CitizenRepo *postgressCitizenRepository) GetCitizenByID(ID int) (res domain.Citizen, err error) {
 	var citizen models.Citizen
 
 	if result := CitizenRepo.Conn.First(&citizen, "id = ?", ID); result.Error != nil {
@@ -93,7 +89,7 @@ func (CitizenRepo *mysqlCitizenRepository) GetCitizenByID(ID int) (res domain.Ci
 
 }
 
-func (CitizenRepo *mysqlCitizenRepository) GetCitizenByCPF(CPF string) (res domain.Citizen, err error) {
+func (CitizenRepo *postgressCitizenRepository) GetCitizenByCPF(CPF string) (res domain.Citizen, err error) {
 	var citizen models.Citizen
 
 	if result := CitizenRepo.Conn.First(&citizen, "cpf = ?", utils.Encrypt(CPF)); result.Error != nil {
@@ -119,7 +115,7 @@ func (CitizenRepo *mysqlCitizenRepository) GetCitizenByCPF(CPF string) (res doma
 	return return_citizen, err
 }
 
-func (CitizenRepo *mysqlCitizenRepository) GetAllCitizen() (res []domain.Citizen, err error) {
+func (CitizenRepo *postgressCitizenRepository) GetAllCitizen() (res []domain.Citizen, err error) {
 	citizens_model := []models.Citizen{}
 	citizens := []domain.Citizen{}
 
@@ -134,7 +130,7 @@ func (CitizenRepo *mysqlCitizenRepository) GetAllCitizen() (res []domain.Citizen
 	return citizens, result.Error
 }
 
-func (CitizenRepo *mysqlCitizenRepository) InsertNewAddress(Address domain.Address, CitizenId int) (res domain.Address, err error) {
+func (CitizenRepo *postgressCitizenRepository) InsertNewAddress(Address domain.Address, CitizenId int) (res domain.Address, err error) {
 	AddressModel := models.Address{CitizenId: CitizenId, PostalCode: utils.Encrypt(Address.PostalCode),
 		Address: utils.Encrypt(Address.Address), Number: utils.Encrypt(Address.Number),
 		Complement: utils.Encrypt(Address.Complement), Neighbourhood: utils.Encrypt(Address.Neighbourhood),
@@ -150,7 +146,7 @@ func (CitizenRepo *mysqlCitizenRepository) InsertNewAddress(Address domain.Addre
 
 }
 
-func (CitizenRepo *mysqlCitizenRepository) InsertNewDebt(Debt domain.Debt, CitizenId int) (res domain.Debt, err error) {
+func (CitizenRepo *postgressCitizenRepository) InsertNewDebt(Debt domain.Debt, CitizenId int) (res domain.Debt, err error) {
 	DebtModel := models.Debt{DebtorID: CitizenId, Value: Debt.Value,
 		WasNegociated: Debt.WasNegociated, CreditTakenAt: Debt.CreditTakenAt,
 		CreditTurnedDebitAt: Debt.CreditTurnedDebitAt,
@@ -165,12 +161,11 @@ func (CitizenRepo *mysqlCitizenRepository) InsertNewDebt(Debt domain.Debt, Citiz
 
 }
 
-func (CitizenRepo *mysqlCitizenRepository) CreateCitizen(citizen domain.Citizen) (res domain.Citizen, err error) {
+func (CitizenRepo *postgressCitizenRepository) CreateCitizen(citizen domain.Citizen) (res domain.Citizen, err error) {
 	citizen_model := models.Citizen{Name: utils.Encrypt(citizen.Name),
 		CPF: utils.Encrypt(citizen.CPF), Birthdate: citizen.Birthdate}
 
 	if result := CitizenRepo.Conn.Create(&citizen_model); result.Error != nil {
-
 		return citizen, result.Error
 	}
 
@@ -186,7 +181,7 @@ func (CitizenRepo *mysqlCitizenRepository) CreateCitizen(citizen domain.Citizen)
 	return return_citizen, err
 }
 
-func (CitizenRepo *mysqlCitizenRepository) UpdateCitizenByID(Citizen domain.Citizen, ID int) (res domain.Citizen, err error) {
+func (CitizenRepo *postgressCitizenRepository) UpdateCitizenByID(Citizen domain.Citizen, ID int) (res domain.Citizen, err error) {
 	CitizenWithId, _ := CitizenRepo.GetCitizenByID(ID)
 	CitizenOldDebts, _ := CitizenRepo.GetDebtsByCitizenId(ID)
 	CitizenOldAddress, _ := CitizenRepo.GetAddressByCitizenId(ID)
@@ -254,7 +249,7 @@ func (CitizenRepo *mysqlCitizenRepository) UpdateCitizenByID(Citizen domain.Citi
 
 }
 
-func (CitizenRepo *mysqlCitizenRepository) DeleteDebt(ID int) (res domain.Debt, err error) {
+func (CitizenRepo *postgressCitizenRepository) DeleteDebt(ID int) (res domain.Debt, err error) {
 	var Debt models.Debt
 
 	if result := CitizenRepo.Conn.First(&Debt, "id = ?", ID); result.Error != nil {
@@ -273,7 +268,7 @@ func (CitizenRepo *mysqlCitizenRepository) DeleteDebt(ID int) (res domain.Debt, 
 
 }
 
-func (CitizenRepo *mysqlCitizenRepository) UpdateDebt(Debt domain.Debt, ID int) (res domain.Debt, err error) {
+func (CitizenRepo *postgressCitizenRepository) UpdateDebt(Debt domain.Debt, ID int) (res domain.Debt, err error) {
 	DebtModel := domain.Debt{ID: Debt.ID, DebtorID: Debt.DebtorID, Value: Debt.Value,
 		WasNegociated: Debt.WasNegociated, CreditTakenAt: Debt.CreditTakenAt,
 		CreditTurnedDebitAt: Debt.CreditTurnedDebitAt, Deleted: true,
@@ -283,7 +278,7 @@ func (CitizenRepo *mysqlCitizenRepository) UpdateDebt(Debt domain.Debt, ID int) 
 	return Debt, err
 }
 
-func (CitizenRepo *mysqlCitizenRepository) DeleteAddress(ID int) (res domain.Address, err error) {
+func (CitizenRepo *postgressCitizenRepository) DeleteAddress(ID int) (res domain.Address, err error) {
 	var Address models.Address
 
 	if result := CitizenRepo.Conn.First(&Address, "id = ?", ID); result.Error != nil {
@@ -303,7 +298,7 @@ func (CitizenRepo *mysqlCitizenRepository) DeleteAddress(ID int) (res domain.Add
 	return TmpAddress, err
 }
 
-func (CitizenRepo *mysqlCitizenRepository) UpdateAddress(Address domain.Address, ID int) (res domain.Address, err error) {
+func (CitizenRepo *postgressCitizenRepository) UpdateAddress(Address domain.Address, ID int) (res domain.Address, err error) {
 	AddressModel := domain.Address{ID: ID, CitizenId: Address.ID, PostalCode: utils.Encrypt(Address.PostalCode),
 		Address: utils.Encrypt(Address.Address), Number: utils.Encrypt(Address.Number),
 		Complement: utils.Decrypt(Address.Complement), Neighbourhood: utils.Encrypt(Address.Neighbourhood),

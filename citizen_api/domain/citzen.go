@@ -54,6 +54,17 @@ type CitizenRepository interface {
 }
 
 type CitizenUsecase interface {
-	GetCitizenByID(ID int) (Citizen, error)
-	GetCitizenByCPF(CPF string) (Citizen, error)
+	GetCitizenByID(ID int) []Citizen
+	GetCitizenByCPF(CPF string) []Citizen
+	CreateCitizen(Citizen Citizen) ([]Citizen, error)
+	GetDebtsByCitizenId(ID int) (res []Debt)
+	GetAddressByCitizenId(ID int) (res []Address)
+	GetAllCitizen() (res []Citizen)
+	InsertNewAddress(Address, int) []Address
+	InsertNewDebt(Debt, int) []Debt
+	UpdateCitizenByID(Citizen, int) []Citizen
+	DeleteDebt(int) []Debt
+	DeleteAddress(int) []Address
+	UpdateAddress(Address, int) []Address
+	UpdateDebt(Debt, int) []Debt
 }
