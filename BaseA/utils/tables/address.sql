@@ -1,4 +1,4 @@
-CREATE TABLE address(
+CREATE TABLE addresses(
     id          BIGSERIAL NOT NULL PRIMARY KEY,
     postal_code         VARCHAR(8),
     address             VARCHAR(255),
@@ -8,7 +8,7 @@ CREATE TABLE address(
     city                VARCHAR(255),
     state               VARCHAR(255),
     country             VARCHAR(255),
-    citzen_id           BIGSERIAL,
-    FOREIGN KEY (citzen_id) REFERENCES natural_person(id)
+    citizen_id           BIGSERIAL,
+    FOREIGN KEY (citizen_id) REFERENCES citizens(id)
 );
 

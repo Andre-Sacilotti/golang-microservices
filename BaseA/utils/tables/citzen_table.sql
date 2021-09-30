@@ -1,7 +1,7 @@
-CREATE TABLE natural_person (
-    id          BIGSERIAL NOT NULL PRIMARY KEY,
+CREATE TABLE citizens (
+    id          BIGSERIAL PRIMARY KEY,
     name        VARCHAR(255),
-    cpf         VARCHAR(11)     UNIQUE,
+    cpf         VARCHAR(255)     UNIQUE,
     birthdate   TIMESTAMP
  );
 

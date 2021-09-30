@@ -9,15 +9,12 @@ services:
             - POSTGRES_PASSWORD=test
             - PGDATA=/data/postgres
         ports:
-            - 15432:5432
+            - 5432:5432
         volumes:
             - postgres_volume:/data/postgres
             - ./utils/tables/citzen_table.sql:/docker-entrypoint-initdb.d/1.sql
             - ./utils/tables/address.sql:/docker-entrypoint-initdb.d/2.sql
             - ./utils/tables/debts.sql:/docker-entrypoint-initdb.d/3.sql
-            - ./utils/initial_data/debts.sql:/docker-entrypoint-initdb.d/5.sql
-            - ./utils/initial_data/citzen.sql:/docker-entrypoint-initdb.d/4.sql
-            - ./utils/initial_data/address.sql:/docker-entrypoint-initdb.d/6.sql
         networks:
             - internal_comunication
 
