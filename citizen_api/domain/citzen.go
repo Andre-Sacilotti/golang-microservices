@@ -30,7 +30,7 @@ type Debt struct {
 
 type Citizen struct {
 	ID        int       `gorm:"primaryKey;autoIncrement" json:",omitempty"`
-	Name      string    `json:"password" validate:"required" gorm:"index"`
+	Name      string    `json:"name" validate:"required" gorm:"index"`
 	CPF       string    `json:"cpf" validate:"required"`
 	Birthdate time.Time `json:"birthdate" validate:"required"`
 	Debts     []Debt    `json:"debts" validate:"required"`
@@ -43,7 +43,7 @@ type CitizenRepository interface {
 	CreateCitizen(Citizen Citizen) (Citizen, error)
 	GetDebtsByCitizenId(ID int) (res []Debt, err error)
 	GetAddressByCitizenId(ID int) (res []Address, err error)
-	GetAllCitizen() (res []Citizen, err error)
+	GetAllCitizen(offset int, limit int) (res []Citizen, err error)
 	InsertNewAddress(Address, int) (Address, error)
 	InsertNewDebt(Debt, int) (Debt, error)
 	UpdateCitizenByID(Citizen, int) (Citizen, error)
@@ -57,14 +57,16 @@ type CitizenUsecase interface {
 	GetCitizenByID(ID int) []Citizen
 	GetCitizenByCPF(CPF string) []Citizen
 	CreateCitizen(Citizen Citizen) ([]Citizen, error)
-	GetDebtsByCitizenId(ID int) (res []Debt)
-	GetAddressByCitizenId(ID int) (res []Address)
-	GetAllCitizen() (res []Citizen)
-	InsertNewAddress(Address, int) []Address
-	InsertNewDebt(Debt, int) []Debt
+	GetAllCitizen(offset int, limit int) (res []Citizen)
 	UpdateCitizenByID(Citizen, int) []Citizen
+
+	GetDebtsByCitizenId(ID int) (res []Debt)
+	InsertNewDebt(Debt, int) []Debt
+	UpdateDebt(Debt, int) []Debt
 	DeleteDebt(int) []Debt
+
+	GetAddressByCitizenId(ID int) (res []Address)
+	InsertNewAddress(Address, int) []Address
 	DeleteAddress(int) []Address
 	UpdateAddress(Address, int) []Address
-	UpdateDebt(Debt, int) []Debt
 }

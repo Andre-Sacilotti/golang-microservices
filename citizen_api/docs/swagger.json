@@ -1,0 +1,225 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/citizen": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizen"
+                ],
+                "summary": "Get a list of citizens",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset for pagination in request",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit how many citizens will be returned",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizen"
+                ],
+                "summary": "Insert a new citizen data",
+                "parameters": [
+                    {
+                        "description": "Citizen can have many addresses and debts",
+                        "name": "citizen_data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Citizen"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "delivery.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "delivery.Response": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Citizen"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Address": {
+            "type": "object",
+            "required": [
+                "address",
+                "complement",
+                "postal_code"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "citizen_id": {
+                    "type": "integer"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "complement": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "neighbourhood": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "string",
+                    "default": "false"
+                },
+                "postal_code": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Citizen": {
+            "type": "object",
+            "required": [
+                "address",
+                "birthdate",
+                "cpf",
+                "debts",
+                "name"
+            ],
+            "properties": {
+                "address": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Address"
+                    }
+                },
+                "birthdate": {
+                    "type": "string"
+                },
+                "cpf": {
+                    "type": "string"
+                },
+                "debts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Debt"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.Debt": {
+            "type": "object",
+            "required": [
+                "credit_taken_at",
+                "debtor_id",
+                "value"
+            ],
+            "properties": {
+                "credit_taken_at": {
+                    "type": "string"
+                },
+                "credit_turned_debit_at": {
+                    "type": "string"
+                },
+                "debtor_id": {
+                    "type": "integer"
+                },
+                "deleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "number"
+                },
+                "was_negociated": {
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        }
+    }
+}

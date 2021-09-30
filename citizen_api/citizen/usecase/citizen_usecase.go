@@ -56,8 +56,8 @@ func (CitizenUC *CitizenUsecase) GetAddressByCitizenId(ID int) (res []domain.Add
 	return res_
 }
 
-func (CitizenUC *CitizenUsecase) GetAllCitizen() (res []domain.Citizen) {
-	res_, err := CitizenUC.CitizenRepo.GetAllCitizen()
+func (CitizenUC *CitizenUsecase) GetAllCitizen(Offset int, Limit int) (res []domain.Citizen) {
+	res_, err := CitizenUC.CitizenRepo.GetAllCitizen(Offset, Limit)
 	if err != nil {
 		return res_
 	}

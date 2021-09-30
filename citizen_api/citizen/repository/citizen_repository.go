@@ -115,15 +115,25 @@ func (CitizenRepo *postgressCitizenRepository) GetCitizenByCPF(CPF string) (res 
 	return return_citizen, err
 }
 
-func (CitizenRepo *postgressCitizenRepository) GetAllCitizen() (res []domain.Citizen, err error) {
+func (CitizenRepo *postgressCitizenRepository) GetAllCitizen(Offset int, Limit int) (res []domain.Citizen, err error) {
 	citizens_model := []models.Citizen{}
 	citizens := []domain.Citizen{}
 
-	result := CitizenRepo.Conn.Find(&citizens_model)
+	result := CitizenRepo.Conn.Offset(Offset).Limit(Limit).Find(&citizens_model)
 
 	for _, element := range citizens_model {
 
-		tmp_citizen := domain.Citizen{ID: element.ID, Name: utils.Decrypt(element.Name), CPF: utils.Decrypt(element.CPF), Birthdate: element.Birthdate}
+		Debts, _ := CitizenRepo.GetDebtsByCitizenId(element.ID)
+		Address, _ := CitizenRepo.GetAddressByCitizenId(element.ID)
+
+		tmp_citizen := domain.Citizen{
+			ID:        element.ID,
+			Name:      utils.Decrypt(element.Name),
+			CPF:       utils.Decrypt(element.CPF),
+			Birthdate: element.Birthdate,
+			Debts:     Debts,
+			Address:   Address,
+		}
 		citizens = append(citizens, tmp_citizen)
 	}
 
@@ -162,22 +172,35 @@ func (CitizenRepo *postgressCitizenRepository) InsertNewDebt(Debt domain.Debt, C
 }
 
 func (CitizenRepo *postgressCitizenRepository) CreateCitizen(citizen domain.Citizen) (res domain.Citizen, err error) {
-	citizen_model := models.Citizen{Name: utils.Encrypt(citizen.Name),
-		CPF: utils.Encrypt(citizen.CPF), Birthdate: citizen.Birthdate}
+	citizen_model := models.Citizen{
+		Name:      utils.Encrypt(citizen.Name),
+		CPF:       utils.Encrypt(citizen.CPF),
+		Birthdate: citizen.Birthdate}
+
+	Debts := []domain.Debt{}
+	Addresses := []domain.Address{}
 
 	if result := CitizenRepo.Conn.Create(&citizen_model); result.Error != nil {
 		return citizen, result.Error
 	}
 
 	for _, element := range citizen.Address {
-		CitizenRepo.InsertNewAddress(element, citizen_model.ID)
+		Address, _ := CitizenRepo.InsertNewAddress(element, citizen_model.ID)
+		element.ID = Address.ID
+		Addresses = append(Addresses, element)
 	}
 
 	for _, element := range citizen.Debts {
-		CitizenRepo.InsertNewDebt(element, citizen_model.ID)
+		Debt, _ := CitizenRepo.InsertNewDebt(element, citizen_model.ID)
+		element.ID = Debt.ID
+		Debts = append(Debts, element)
 	}
 
-	return_citizen := domain.Citizen{ID: citizen_model.ID, Name: citizen.Name, CPF: citizen.CPF, Birthdate: citizen.Birthdate}
+	return_citizen := domain.Citizen{
+		ID:   citizen_model.ID,
+		Name: citizen.Name, CPF: citizen.CPF,
+		Birthdate: citizen.Birthdate,
+		Debts:     Debts, Address: Addresses}
 	return return_citizen, err
 }
 

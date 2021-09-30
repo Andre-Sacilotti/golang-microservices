@@ -1,16 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-	"time"
 
+	"github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/citizen/delivery"
 	"github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/citizen/models"
 	"github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/citizen/repository"
-	"github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/domain"
+	"github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/citizen/usecase"
 
-	// _ "github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/docs"
+	_ "github.com/Andre-Sacilotti/golang-credit-backend/citizen_api/docs"
 
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -38,22 +37,11 @@ func main() {
 		}
 	}()
 
-	ar := repository.CitizenRepositoryInterface(db)
-
-	fmt.Println("TODOS CITIZEN")
-	fmt.Println(ar.GetAllCitizen())
-	fmt.Println("CRIOU CITIZEN")
-	fmt.Println(ar.CreateCitizen(domain.Citizen{Name: "sdsdsds", CPF: "12", Birthdate: time.Now(), Debts: []domain.Debt{{DebtorID: 1}}}))
-	// // fmt.Println(ar.CreateCitizen(domain.Citizen{Name: "sdsdsds", CPF: "333", Birthdate: time.Now(), Debts: []domain.Debt{{DebtorID: 1}}}))
-	// fmt.Println("TODOS CITIZEN")
-	// fmt.Println(ar.GetAllCitizen())
-
-	// fmt.Println("NOVO DEBTO")
-	// fmt.Println(ar.InsertNewDebt(domain.Debt{DebtorID: 1, Value: 2000}, 1))
-	// fmt.Println("TODOS DEBTOS DO CIDADAO 1")
-	// fmt.Println(ar.GetDebtsByCitizenId(1))
-
 	router := mux.NewRouter()
+	ar := repository.CitizenRepositoryInterface(db)
+	au := usecase.UsecaseInterface(ar)
+	delivery.CitizenHandlerInterface(router, au)
+
 	router.PathPrefix("/docs").Handler(httpSwagger.WrapHandler)
-	log.Fatal(http.ListenAndServe(":8082", router))
+	log.Fatal(http.ListenAndServe(":82", router))
 }

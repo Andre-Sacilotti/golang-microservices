@@ -1,0 +1,149 @@
+definitions:
+  delivery.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  delivery.Response:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/domain.Citizen'
+        type: array
+      message:
+        type: string
+    type: object
+  domain.Address:
+    properties:
+      address:
+        type: string
+      citizen_id:
+        type: integer
+      city:
+        type: string
+      complement:
+        type: string
+      country:
+        type: string
+      deleted:
+        default: false
+        type: boolean
+      id:
+        type: integer
+      neighbourhood:
+        type: string
+      number:
+        default: "false"
+        type: string
+      postal_code:
+        type: string
+      state:
+        type: string
+    required:
+    - address
+    - complement
+    - postal_code
+    type: object
+  domain.Citizen:
+    properties:
+      address:
+        items:
+          $ref: '#/definitions/domain.Address'
+        type: array
+      birthdate:
+        type: string
+      cpf:
+        type: string
+      debts:
+        items:
+          $ref: '#/definitions/domain.Debt'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - address
+    - birthdate
+    - cpf
+    - debts
+    - name
+    type: object
+  domain.Debt:
+    properties:
+      credit_taken_at:
+        type: string
+      credit_turned_debit_at:
+        type: string
+      debtor_id:
+        type: integer
+      deleted:
+        default: false
+        type: boolean
+      id:
+        type: integer
+      value:
+        type: number
+      was_negociated:
+        default: false
+        type: boolean
+    required:
+    - credit_taken_at
+    - debtor_id
+    - value
+    type: object
+info:
+  contact: {}
+paths:
+  /citizen:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Offset for pagination in request
+        in: query
+        name: offset
+        type: integer
+      - description: Limit how many citizens will be returned
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
+      summary: Get a list of citizens
+      tags:
+      - Citizen
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Citizen can have many addresses and debts
+        in: body
+        name: citizen_data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Citizen'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
+      summary: Insert a new citizen data
+      tags:
+      - Citizen
+swagger: "2.0"
