@@ -17,6 +17,7 @@ require (
 	github.com/go-swagger/go-swagger v0.27.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/gorilla/mux v1.8.0
+	github.com/jinzhu/gorm v1.9.16 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
@@ -32,6 +33,7 @@ require (
 	golang.org/x/sys v0.0.0-20210925032602-92d5a993a665 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.6 // indirect
+	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0 // indirect
 	gorm.io/driver/postgres v1.1.1
 	gorm.io/gorm v1.21.15 // indirect
 )
