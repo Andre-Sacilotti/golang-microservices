@@ -13,6 +13,24 @@ definitions:
       message:
         type: string
     type: object
+  delivery.ResponseAddress:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/domain.Address'
+        type: array
+      message:
+        type: string
+    type: object
+  delivery.ResponseDebt:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/domain.Debt'
+        type: array
+      message:
+        type: string
+    type: object
   domain.Address:
     properties:
       address:
@@ -39,10 +57,6 @@ definitions:
         type: string
       state:
         type: string
-    required:
-    - address
-    - complement
-    - postal_code
     type: object
   domain.Citizen:
     properties:
@@ -50,8 +64,6 @@ definitions:
         items:
           $ref: '#/definitions/domain.Address'
         type: array
-      birthdate:
-        type: string
       cpf:
         type: string
       debts:
@@ -62,12 +74,6 @@ definitions:
         type: integer
       name:
         type: string
-    required:
-    - address
-    - birthdate
-    - cpf
-    - debts
-    - name
     type: object
   domain.Debt:
     properties:
@@ -87,10 +93,6 @@ definitions:
       was_negociated:
         default: false
         type: boolean
-    required:
-    - credit_taken_at
-    - debtor_id
-    - value
     type: object
 info:
   contact: {}
@@ -144,6 +146,271 @@ paths:
           schema:
             $ref: '#/definitions/delivery.ErrorResponse'
       summary: Insert a new citizen data
+      tags:
+      - Citizen
+  /citizen/{CPF}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 'Citizen CPF to return '
+        in: path
+        name: CPF
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
+      summary: Get a citizen data
+      tags:
+      - Citizen
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Citizen CPF to update
+        in: path
+        name: CPF
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
+      summary: Update citizen data
+      tags:
+      - Citizen
+  /citizen/{CPF}/address:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: CPF of the address
+        in: path
+        name: CPF
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.ResponseAddress'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
+      summary: Get a list of address
+      tags:
+      - Citizen
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: CPF of the citizen
+        in: path
+        name: CPF
+        type: string
+      - description: Address data
+        in: body
+        name: address_data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Address'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.ResponseAddress'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
+      summary: Insert a new Address
+      tags:
+      - Citizen
+  /citizen/{CPF}/address/{ID}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: CPF of the citizen
+        in: path
+        name: CPF
+        type: string
+      - description: Id of the Address
+        in: path
+        name: ID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.ResponseAddress'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
+      summary: Delete a specific Address
+      tags:
+      - Citizen
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: CPF of the citizen
+        in: path
+        name: CPF
+        type: string
+      - description: Id of the Address
+        in: path
+        name: ID
+        type: string
+      - description: Address data
+        in: body
+        name: address_data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Address'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.ResponseAddress'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
+      summary: Update a specific Address
+      tags:
+      - Citizen
+  /citizen/{CPF}/debts:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: CPF of the citizen
+        in: path
+        name: CPF
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.ResponseDebt'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
+      summary: Get a list of debts
+      tags:
+      - Citizen
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: CPF of the citizen
+        in: path
+        name: CPF
+        type: string
+      - description: Debt data
+        in: body
+        name: debt_data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Debt'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.ResponseDebt'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
+      summary: Insert a new debt
+      tags:
+      - Citizen
+  /citizen/{CPF}/debts/{ID}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: CPF of the citizen
+        in: path
+        name: CPF
+        type: string
+      - description: Id of the debt
+        in: path
+        name: ID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.ResponseDebt'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
+      summary: Delete a specific debt
+      tags:
+      - Citizen
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: CPF of the citizen
+        in: path
+        name: CPF
+        type: string
+      - description: Id of the debt
+        in: path
+        name: ID
+        type: string
+      - description: Debt data
+        in: body
+        name: debt_data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Debt'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delivery.ResponseDebt'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/delivery.ErrorResponse'
+      summary: Update a specific debt
       tags:
       - Citizen
 swagger: "2.0"

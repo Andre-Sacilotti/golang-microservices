@@ -7,4 +7,6 @@ var (
 	ErrNotAutorized        = errors.New("Not Authorized")
 	ErrNotFound            = errors.New("Not Found")
 	ErrAlreadyExists       = errors.New("Already Exists")
+	ErrCantUpdateCPF       = errors.New("Cant Update CPF")
+	ErrCantUpdate          = errors.New("Cant Update Debt")
 )

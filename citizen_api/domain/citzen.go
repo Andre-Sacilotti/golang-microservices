@@ -5,48 +5,46 @@ import (
 )
 
 type Address struct {
-	ID            int    `gorm:"primaryKey;autoIncrement"`
-	CitizenId     int    `json:"citizen_id" gorm:"index"`
-	PostalCode    string `json:"postal_code" validate:"required"`
-	Address       string `json:"address" validate:"required"`
-	Number        string `json:"number" default:"false"`
-	Complement    string `json:"complement" validate:"required"`
-	Neighbourhood string `json:"neighbourhood"`
-	City          string `json:"city"`
-	State         string `json:"state"`
-	Country       string `json:"country"`
-	Deleted       bool   `json:"deleted" default:"false"`
+	ID            int    `gorm:"primaryKey;autoIncrement" json:",omitempty"`
+	CitizenId     int    `json:"citizen_id,omitempty" gorm:"index"`
+	PostalCode    string `json:"postal_code,omitempty" `
+	Address       string `json:"address,omitempty" `
+	Number        string `json:"number,omitempty" default:"false"`
+	Complement    string `json:"complement,omitempty" `
+	Neighbourhood string `json:"neighbourhood,omitempty"`
+	City          string `json:"city,omitempty"`
+	State         string `json:"state,omitempty"`
+	Country       string `json:"country,omitempty"`
+	Deleted       bool   `json:"deleted,omitempty" default:"false"`
 }
 
 type Debt struct {
-	ID                  int       `gorm:"primaryKey;autoIncrement"`
-	DebtorID            int       `json:"debtor_id" validate:"required" gorm:"index"`
-	Value               float32   `json:"value" validate:"required"`
-	WasNegociated       bool      `json:"was_negociated" default:"false"`
-	CreditTakenAt       time.Time `json:"credit_taken_at" validate:"required"`
-	CreditTurnedDebitAt time.Time `json:"credit_turned_debit_at"`
-	Deleted             bool      `json:"deleted" default:"false"`
+	ID                  int       `gorm:"primaryKey;autoIncrement" json:",omitempty"`
+	DebtorID            int       `json:"debtor_id,omitempty"  gorm:"index"`
+	Value               float32   `json:"value,omitempty" `
+	WasNegociated       bool      `json:"was_negociated,omitempty" default:"false"`
+	CreditTakenAt       time.Time `json:"credit_taken_at,omitempty" `
+	CreditTurnedDebitAt time.Time `json:"credit_turned_debit_at,omitempty"`
+	Deleted             bool      `json:"deleted,omitempty" default:"false"`
 }
 
 type Citizen struct {
-	ID        int       `gorm:"primaryKey;autoIncrement" json:",omitempty"`
-	Name      string    `json:"name" validate:"required" gorm:"index"`
-	CPF       string    `json:"cpf" validate:"required"`
-	Birthdate time.Time `json:"birthdate" validate:"required"`
-	Debts     []Debt    `json:"debts" validate:"required"`
-	Address   []Address `json:"address" validate:"required"`
+	ID      int       `gorm:"primaryKey;autoIncrement" json:",omitempty"`
+	Name    string    `json:"name,omitempty"  gorm:"index"`
+	CPF     string    `json:"cpf,omitempty"`
+	Debts   []Debt    `json:"debts,omitempty"`
+	Address []Address `json:"address,omitempty" `
 }
 
 type CitizenRepository interface {
-	GetCitizenByID(ID int) (Citizen, error)
 	GetCitizenByCPF(CPF string) (Citizen, error)
 	CreateCitizen(Citizen Citizen) (Citizen, error)
-	GetDebtsByCitizenId(ID int) (res []Debt, err error)
-	GetAddressByCitizenId(ID int) (res []Address, err error)
+	GetDebtsByCitizenCPF(CPF string) (res []Debt, err error)
+	GetAddressByCitizenCPF(CPF string) (res []Address, err error)
 	GetAllCitizen(offset int, limit int) (res []Citizen, err error)
-	InsertNewAddress(Address, int) (Address, error)
-	InsertNewDebt(Debt, int) (Debt, error)
-	UpdateCitizenByID(Citizen, int) (Citizen, error)
+	InsertNewAddress(Address, string) (Address, error)
+	InsertNewDebt(Debt, string) (Debt, error)
+	UpdateCitizenByCPF(Citizen, string) (Citizen, error)
 	DeleteDebt(int) (Debt, error)
 	DeleteAddress(int) (Address, error)
 	UpdateAddress(Address, int) (Address, error)
@@ -54,19 +52,18 @@ type CitizenRepository interface {
 }
 
 type CitizenUsecase interface {
-	GetCitizenByID(ID int) []Citizen
 	GetCitizenByCPF(CPF string) []Citizen
 	CreateCitizen(Citizen Citizen) ([]Citizen, error)
 	GetAllCitizen(offset int, limit int) (res []Citizen)
-	UpdateCitizenByID(Citizen, int) []Citizen
+	UpdateCitizenByCPF(Citizen, string) []Citizen
 
-	GetDebtsByCitizenId(ID int) (res []Debt)
-	InsertNewDebt(Debt, int) []Debt
-	UpdateDebt(Debt, int) []Debt
+	GetDebtsByCitizenCPF(CPF string) (res []Debt)
+	InsertNewDebt(Debt, string) ([]Debt, error)
+	UpdateDebt(Debt, int) ([]Debt, error)
 	DeleteDebt(int) []Debt
 
-	GetAddressByCitizenId(ID int) (res []Address)
-	InsertNewAddress(Address, int) []Address
+	GetAddressByCitizenCPF(CPF string) (res []Address)
+	InsertNewAddress(Address, string) ([]Address, error)
 	DeleteAddress(int) []Address
-	UpdateAddress(Address, int) []Address
+	UpdateAddress(Address, int) ([]Address, error)
 }

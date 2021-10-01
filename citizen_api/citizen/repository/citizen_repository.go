@@ -17,15 +17,17 @@ func CitizenRepositoryInterface(Conn *gorm.DB) domain.CitizenRepository {
 	return &postgressCitizenRepository{Conn}
 }
 
-func (CitizenRepo *postgressCitizenRepository) GetDebtsByCitizenId(ID int) (res []domain.Debt, err error) {
+func (CitizenRepo *postgressCitizenRepository) GetDebtsByCitizenCPF(CPF string) (res []domain.Debt, err error) {
 	var debts []domain.Debt
 	var dcrypted_debts []domain.Debt
 
-	if result := CitizenRepo.Conn.Find(&debts, "debtor_id = ?", ID); result.Error != nil {
+	Citizen, err := CitizenRepo.GetCitizenByCPF(CPF)
+
+	if result := CitizenRepo.Conn.Find(&debts, "debtor_id = ?", Citizen.ID); result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return debts, domain.ErrNotFound
+			return []domain.Debt{}, domain.ErrNotFound
 		}
-		return
+		return []domain.Debt{}, domain.ErrNotFound
 	}
 
 	for _, element := range debts {
@@ -41,15 +43,17 @@ func (CitizenRepo *postgressCitizenRepository) GetDebtsByCitizenId(ID int) (res 
 
 }
 
-func (CitizenRepo *postgressCitizenRepository) GetAddressByCitizenId(ID int) (res []domain.Address, err error) {
+func (CitizenRepo *postgressCitizenRepository) GetAddressByCitizenCPF(CPF string) (res []domain.Address, err error) {
 	var address []domain.Address
 	var decrypted_address []domain.Address
 
-	if result := CitizenRepo.Conn.Find(&address, "citizen_id = ?", ID); result.Error != nil {
+	Citizen, err := CitizenRepo.GetCitizenByCPF(CPF)
+
+	if result := CitizenRepo.Conn.Find(&address, "citizen_id = ?", Citizen.ID); result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return address, domain.ErrNotFound
+			return []domain.Address{}, domain.ErrNotFound
 		}
-		return
+		return []domain.Address{}, domain.ErrNotFound
 	}
 
 	for _, element := range address {
@@ -66,51 +70,46 @@ func (CitizenRepo *postgressCitizenRepository) GetAddressByCitizenId(ID int) (re
 
 }
 
-func (CitizenRepo *postgressCitizenRepository) GetCitizenByID(ID int) (res domain.Citizen, err error) {
-	var citizen models.Citizen
-
-	if result := CitizenRepo.Conn.First(&citizen, "id = ?", ID); result.Error != nil {
-
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return_citizen := domain.Citizen{ID: citizen.ID, Name: citizen.Name, CPF: citizen.CPF, Birthdate: citizen.Birthdate}
-			return return_citizen, domain.ErrNotFound
-		}
-		return
-	}
-
-	debts, _ := CitizenRepo.GetDebtsByCitizenId(ID)
-	address, _ := CitizenRepo.GetAddressByCitizenId(ID)
-
-	return_citizen := domain.Citizen{
-		Name: utils.Decrypt(citizen.Name), CPF: utils.Decrypt(citizen.CPF), ID: citizen.ID,
-		Birthdate: citizen.Birthdate, Debts: debts, Address: address,
-	}
-	return return_citizen, err
-
-}
-
 func (CitizenRepo *postgressCitizenRepository) GetCitizenByCPF(CPF string) (res domain.Citizen, err error) {
 	var citizen models.Citizen
+	var debts []models.Debt
+	var address []models.Address
+
+	var debts_domain []domain.Debt
+	var address_domain []domain.Address
 
 	if result := CitizenRepo.Conn.First(&citizen, "cpf = ?", utils.Encrypt(CPF)); result.Error != nil {
 
-		return_citizen := domain.Citizen{
-			Name: citizen.Name, CPF: citizen.CPF,
-			Birthdate: citizen.Birthdate,
-		}
-
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-
-			return return_citizen, domain.ErrNotFound
+			return domain.Citizen{}, domain.ErrNotFound
 		}
-		return return_citizen, domain.ErrNotFound
+		return domain.Citizen{}, domain.ErrNotFound
 	}
-	debts, _ := CitizenRepo.GetDebtsByCitizenId(citizen.ID)
-	address, _ := CitizenRepo.GetAddressByCitizenId(citizen.ID)
+
+	CitizenRepo.Conn.Find(&debts, "debtor_id = ?", citizen.ID)
+
+	CitizenRepo.Conn.Find(&address, "citizen_id = ?", citizen.ID)
+
+	for _, element := range debts {
+		tmp_debt := domain.Debt{ID: element.ID, DebtorID: element.DebtorID, Value: element.Value,
+			WasNegociated: element.WasNegociated, CreditTakenAt: element.CreditTakenAt,
+			CreditTurnedDebitAt: element.CreditTurnedDebitAt,
+		}
+		debts_domain = append(debts_domain, tmp_debt)
+	}
+
+	for _, element := range address {
+		tmp_address := domain.Address{ID: element.ID, CitizenId: element.CitizenId, PostalCode: utils.Decrypt(element.PostalCode),
+			Address: utils.Decrypt(element.Address), Number: utils.Decrypt(element.Number),
+			Complement: utils.Decrypt(element.Complement), Neighbourhood: utils.Decrypt(element.Neighbourhood),
+			City: utils.Decrypt(element.City), State: utils.Decrypt(element.State), Country: utils.Decrypt(element.Country),
+		}
+		address_domain = append(address_domain, tmp_address)
+	}
 
 	return_citizen := domain.Citizen{
-		Name: citizen.Name, CPF: citizen.CPF, ID: citizen.ID,
-		Birthdate: citizen.Birthdate, Debts: debts, Address: address,
+		Name: utils.Decrypt(citizen.Name), CPF: utils.Decrypt(citizen.CPF), ID: citizen.ID,
+		Debts: debts_domain, Address: address_domain,
 	}
 	return return_citizen, err
 }
@@ -123,16 +122,15 @@ func (CitizenRepo *postgressCitizenRepository) GetAllCitizen(Offset int, Limit i
 
 	for _, element := range citizens_model {
 
-		Debts, _ := CitizenRepo.GetDebtsByCitizenId(element.ID)
-		Address, _ := CitizenRepo.GetAddressByCitizenId(element.ID)
+		Debts, _ := CitizenRepo.GetDebtsByCitizenCPF(utils.Decrypt(element.CPF))
+		Address, _ := CitizenRepo.GetAddressByCitizenCPF(utils.Decrypt(element.CPF))
 
 		tmp_citizen := domain.Citizen{
-			ID:        element.ID,
-			Name:      utils.Decrypt(element.Name),
-			CPF:       utils.Decrypt(element.CPF),
-			Birthdate: element.Birthdate,
-			Debts:     Debts,
-			Address:   Address,
+			ID:      element.ID,
+			Name:    utils.Decrypt(element.Name),
+			CPF:     utils.Decrypt(element.CPF),
+			Debts:   Debts,
+			Address: Address,
 		}
 		citizens = append(citizens, tmp_citizen)
 	}
@@ -140,8 +138,10 @@ func (CitizenRepo *postgressCitizenRepository) GetAllCitizen(Offset int, Limit i
 	return citizens, result.Error
 }
 
-func (CitizenRepo *postgressCitizenRepository) InsertNewAddress(Address domain.Address, CitizenId int) (res domain.Address, err error) {
-	AddressModel := models.Address{CitizenId: CitizenId, PostalCode: utils.Encrypt(Address.PostalCode),
+func (CitizenRepo *postgressCitizenRepository) InsertNewAddress(Address domain.Address, CitizenCPF string) (res domain.Address, err error) {
+	Citizen, err := CitizenRepo.GetCitizenByCPF(CitizenCPF)
+
+	AddressModel := models.Address{CitizenId: Citizen.ID, PostalCode: utils.Encrypt(Address.PostalCode),
 		Address: utils.Encrypt(Address.Address), Number: utils.Encrypt(Address.Number),
 		Complement: utils.Encrypt(Address.Complement), Neighbourhood: utils.Encrypt(Address.Neighbourhood),
 		City: utils.Encrypt(Address.City), State: utils.Encrypt(Address.State), Country: utils.Encrypt(Address.Country),
@@ -149,33 +149,36 @@ func (CitizenRepo *postgressCitizenRepository) InsertNewAddress(Address domain.A
 
 	if result := CitizenRepo.Conn.Create(&AddressModel); result.Error != nil {
 
-		return Address, result.Error
+		return domain.Address{}, result.Error
 	}
 	Address.ID = AddressModel.ID
+	Address.CitizenId = AddressModel.CitizenId
 	return Address, err
 
 }
 
-func (CitizenRepo *postgressCitizenRepository) InsertNewDebt(Debt domain.Debt, CitizenId int) (res domain.Debt, err error) {
-	DebtModel := models.Debt{DebtorID: CitizenId, Value: Debt.Value,
+func (CitizenRepo *postgressCitizenRepository) InsertNewDebt(Debt domain.Debt, CitizenCPF string) (res domain.Debt, err error) {
+	Citizen, err := CitizenRepo.GetCitizenByCPF(CitizenCPF)
+	DebtModel := models.Debt{DebtorID: Citizen.ID, Value: Debt.Value,
 		WasNegociated: Debt.WasNegociated, CreditTakenAt: Debt.CreditTakenAt,
 		CreditTurnedDebitAt: Debt.CreditTurnedDebitAt,
 	}
 
 	if result := CitizenRepo.Conn.Create(&DebtModel); result.Error != nil {
 
-		return Debt, result.Error
+		return domain.Debt{}, result.Error
 	}
 	Debt.ID = DebtModel.ID
+	Debt.DebtorID = DebtModel.DebtorID
 	return Debt, err
 
 }
 
 func (CitizenRepo *postgressCitizenRepository) CreateCitizen(citizen domain.Citizen) (res domain.Citizen, err error) {
 	citizen_model := models.Citizen{
-		Name:      utils.Encrypt(citizen.Name),
-		CPF:       utils.Encrypt(citizen.CPF),
-		Birthdate: citizen.Birthdate}
+		Name: utils.Encrypt(citizen.Name),
+		CPF:  utils.Encrypt(citizen.CPF),
+	}
 
 	Debts := []domain.Debt{}
 	Addresses := []domain.Address{}
@@ -185,13 +188,13 @@ func (CitizenRepo *postgressCitizenRepository) CreateCitizen(citizen domain.Citi
 	}
 
 	for _, element := range citizen.Address {
-		Address, _ := CitizenRepo.InsertNewAddress(element, citizen_model.ID)
+		Address, _ := CitizenRepo.InsertNewAddress(element, citizen.CPF)
 		element.ID = Address.ID
 		Addresses = append(Addresses, element)
 	}
 
 	for _, element := range citizen.Debts {
-		Debt, _ := CitizenRepo.InsertNewDebt(element, citizen_model.ID)
+		Debt, _ := CitizenRepo.InsertNewDebt(element, citizen.CPF)
 		element.ID = Debt.ID
 		Debts = append(Debts, element)
 	}
@@ -199,15 +202,19 @@ func (CitizenRepo *postgressCitizenRepository) CreateCitizen(citizen domain.Citi
 	return_citizen := domain.Citizen{
 		ID:   citizen_model.ID,
 		Name: citizen.Name, CPF: citizen.CPF,
-		Birthdate: citizen.Birthdate,
-		Debts:     Debts, Address: Addresses}
+		Debts: Debts, Address: Addresses}
 	return return_citizen, err
 }
 
-func (CitizenRepo *postgressCitizenRepository) UpdateCitizenByID(Citizen domain.Citizen, ID int) (res domain.Citizen, err error) {
-	CitizenWithId, _ := CitizenRepo.GetCitizenByID(ID)
-	CitizenOldDebts, _ := CitizenRepo.GetDebtsByCitizenId(ID)
-	CitizenOldAddress, _ := CitizenRepo.GetAddressByCitizenId(ID)
+func (CitizenRepo *postgressCitizenRepository) UpdateCitizenByCPF(Citizen domain.Citizen, CPF string) (res domain.Citizen, err error) {
+
+	CitizenWithId, _ := CitizenRepo.GetCitizenByCPF(CPF)
+
+	if CitizenWithId.CPF != Citizen.CPF {
+		return Citizen, domain.ErrCantUpdateCPF
+	}
+	CitizenOldDebts, _ := CitizenRepo.GetDebtsByCitizenCPF(CPF)
+	CitizenOldAddress, _ := CitizenRepo.GetAddressByCitizenCPF(CPF)
 
 	for _, OldDebt := range CitizenOldDebts {
 		DebtExists := false
@@ -232,7 +239,7 @@ func (CitizenRepo *postgressCitizenRepository) UpdateCitizenByID(Citizen domain.
 		}
 
 		if !DebtExists {
-			CitizenRepo.InsertNewDebt(Debt, ID)
+			CitizenRepo.InsertNewDebt(Debt, CitizenWithId.CPF)
 		}
 
 	}
@@ -259,14 +266,13 @@ func (CitizenRepo *postgressCitizenRepository) UpdateCitizenByID(Citizen domain.
 		}
 
 		if !AddressExists {
-			CitizenRepo.InsertNewAddress(Address, ID)
+			CitizenRepo.InsertNewAddress(Address, CitizenWithId.CPF)
 		}
 
 	}
 
 	CitizenRepo.Conn.Model(&CitizenWithId).Update("name", utils.Encrypt(Citizen.Name))
 	CitizenRepo.Conn.Model(&CitizenWithId).Update("cpf", utils.Encrypt(Citizen.CPF))
-	CitizenRepo.Conn.Model(&CitizenWithId).Update("birthdate", Citizen.Birthdate)
 
 	return Citizen, err
 
@@ -292,11 +298,17 @@ func (CitizenRepo *postgressCitizenRepository) DeleteDebt(ID int) (res domain.De
 }
 
 func (CitizenRepo *postgressCitizenRepository) UpdateDebt(Debt domain.Debt, ID int) (res domain.Debt, err error) {
-	DebtModel := domain.Debt{ID: Debt.ID, DebtorID: Debt.DebtorID, Value: Debt.Value,
+	DebtModel := domain.Debt{DebtorID: Debt.DebtorID, Value: Debt.Value,
 		WasNegociated: Debt.WasNegociated, CreditTakenAt: Debt.CreditTakenAt,
 		CreditTurnedDebitAt: Debt.CreditTurnedDebitAt, Deleted: true,
 	}
-	CitizenRepo.Conn.Model(&models.Debt{}).Where("debtor_id", ID).UpdateColumns(DebtModel)
+	Result := CitizenRepo.Conn.Model(&models.Debt{}).Where("id = ?", ID).UpdateColumns(DebtModel)
+
+	if Result.Error != nil {
+		return Debt, domain.ErrCantUpdate
+	}
+
+	Debt.ID = ID
 
 	return Debt, err
 }
@@ -322,14 +334,14 @@ func (CitizenRepo *postgressCitizenRepository) DeleteAddress(ID int) (res domain
 }
 
 func (CitizenRepo *postgressCitizenRepository) UpdateAddress(Address domain.Address, ID int) (res domain.Address, err error) {
-	AddressModel := domain.Address{ID: ID, CitizenId: Address.ID, PostalCode: utils.Encrypt(Address.PostalCode),
+	AddressModel := models.Address{ID: ID, CitizenId: Address.ID, PostalCode: utils.Encrypt(Address.PostalCode),
 		Address: utils.Encrypt(Address.Address), Number: utils.Encrypt(Address.Number),
 		Complement: utils.Decrypt(Address.Complement), Neighbourhood: utils.Encrypt(Address.Neighbourhood),
 		City: utils.Encrypt(Address.City), State: utils.Encrypt(Address.State), Country: utils.Encrypt(Address.Country),
 		Deleted: Address.Deleted,
 	}
 
-	CitizenRepo.Conn.Model(&models.Address{}).Where("citizen_id", ID).UpdateColumns(AddressModel)
+	CitizenRepo.Conn.Model(&models.Address{}).Where("id = ?", ID).UpdateColumns(AddressModel)
 
 	return Address, err
 }

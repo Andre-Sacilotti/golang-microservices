@@ -12,16 +12,6 @@ func UsecaseInterface(a domain.CitizenRepository) domain.CitizenUsecase {
 	return &CitizenUsecase{a}
 }
 
-func (CitizenUC *CitizenUsecase) GetCitizenByID(ID int) (res []domain.Citizen) {
-	res_, err := CitizenUC.CitizenRepo.GetCitizenByID(ID)
-	ArrayRes := []domain.Citizen{res_}
-
-	if err != nil {
-		return ArrayRes
-	}
-	return ArrayRes
-}
-
 func (CitizenUC *CitizenUsecase) GetCitizenByCPF(CPF string) (res []domain.Citizen) {
 	res_, err := CitizenUC.CitizenRepo.GetCitizenByCPF(CPF)
 	ArrayRes := []domain.Citizen{res_}
@@ -40,16 +30,16 @@ func (CitizenUC *CitizenUsecase) CreateCitizen(Citizen domain.Citizen) (res []do
 	return ArrayRes, err
 }
 
-func (CitizenUC *CitizenUsecase) GetDebtsByCitizenId(ID int) (res []domain.Debt) {
-	res_, err := CitizenUC.CitizenRepo.GetDebtsByCitizenId(ID)
+func (CitizenUC *CitizenUsecase) GetDebtsByCitizenCPF(CPF string) (res []domain.Debt) {
+	res_, err := CitizenUC.CitizenRepo.GetDebtsByCitizenCPF(CPF)
 	if err != nil {
 		return res_
 	}
 	return res_
 }
 
-func (CitizenUC *CitizenUsecase) GetAddressByCitizenId(ID int) (res []domain.Address) {
-	res_, err := CitizenUC.CitizenRepo.GetAddressByCitizenId(ID)
+func (CitizenUC *CitizenUsecase) GetAddressByCitizenCPF(CPF string) (res []domain.Address) {
+	res_, err := CitizenUC.CitizenRepo.GetAddressByCitizenCPF(CPF)
 	if err != nil {
 		return res_
 	}
@@ -64,26 +54,26 @@ func (CitizenUC *CitizenUsecase) GetAllCitizen(Offset int, Limit int) (res []dom
 	return res_
 }
 
-func (CitizenUC *CitizenUsecase) InsertNewAddress(Address domain.Address, ID int) (res []domain.Address) {
-	res_, err := CitizenUC.CitizenRepo.InsertNewAddress(Address, ID)
+func (CitizenUC *CitizenUsecase) InsertNewAddress(Address domain.Address, CPF string) (res []domain.Address, err error) {
+	res_, err := CitizenUC.CitizenRepo.InsertNewAddress(Address, CPF)
 	ArrayRes := []domain.Address{res_}
 	if err != nil {
-		return ArrayRes
+		return ArrayRes, err
 	}
-	return ArrayRes
+	return ArrayRes, err
 }
 
-func (CitizenUC *CitizenUsecase) InsertNewDebt(Debt domain.Debt, ID int) (res []domain.Debt) {
-	res_, err := CitizenUC.CitizenRepo.InsertNewDebt(Debt, ID)
+func (CitizenUC *CitizenUsecase) InsertNewDebt(Debt domain.Debt, CPF string) (res []domain.Debt, err error) {
+	res_, err := CitizenUC.CitizenRepo.InsertNewDebt(Debt, CPF)
 	ArrayRes := []domain.Debt{res_}
 	if err != nil {
-		return ArrayRes
+		return ArrayRes, err
 	}
-	return ArrayRes
+	return ArrayRes, err
 }
 
-func (CitizenUC *CitizenUsecase) UpdateCitizenByID(Citizen domain.Citizen, ID int) (res []domain.Citizen) {
-	res_, err := CitizenUC.CitizenRepo.UpdateCitizenByID(Citizen, ID)
+func (CitizenUC *CitizenUsecase) UpdateCitizenByCPF(Citizen domain.Citizen, CPF string) (res []domain.Citizen) {
+	res_, err := CitizenUC.CitizenRepo.UpdateCitizenByCPF(Citizen, CPF)
 	ArrayRes := []domain.Citizen{res_}
 	if err != nil {
 		return ArrayRes
@@ -109,20 +99,20 @@ func (CitizenUC *CitizenUsecase) DeleteAddress(ID int) (res []domain.Address) {
 	return ArrayRes
 }
 
-func (CitizenUC *CitizenUsecase) UpdateAddress(Address domain.Address, ID int) (res []domain.Address) {
+func (CitizenUC *CitizenUsecase) UpdateAddress(Address domain.Address, ID int) (res []domain.Address, err error) {
 	res_, err := CitizenUC.CitizenRepo.UpdateAddress(Address, ID)
 	ArrayRes := []domain.Address{res_}
 	if err != nil {
-		return ArrayRes
+		return ArrayRes, err
 	}
-	return ArrayRes
+	return ArrayRes, err
 }
 
-func (CitizenUC *CitizenUsecase) UpdateDebt(Debt domain.Debt, ID int) (res []domain.Debt) {
+func (CitizenUC *CitizenUsecase) UpdateDebt(Debt domain.Debt, ID int) (res []domain.Debt, err error) {
 	res_, err := CitizenUC.CitizenRepo.UpdateDebt(Debt, ID)
 	ArrayRes := []domain.Debt{res_}
 	if err != nil {
-		return ArrayRes
+		return ArrayRes, err
 	}
-	return ArrayRes
+	return ArrayRes, err
 }

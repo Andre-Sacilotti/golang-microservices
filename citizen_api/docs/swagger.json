@@ -82,6 +82,416 @@
                     }
                 }
             }
+        },
+        "/citizen/{CPF}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizen"
+                ],
+                "summary": "Get a citizen data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Citizen CPF to return ",
+                        "name": "CPF",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizen"
+                ],
+                "summary": "Update citizen data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Citizen CPF to update",
+                        "name": "CPF",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/citizen/{CPF}/address": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizen"
+                ],
+                "summary": "Get a list of address",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CPF of the address",
+                        "name": "CPF",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ResponseAddress"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizen"
+                ],
+                "summary": "Insert a new Address",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CPF of the citizen",
+                        "name": "CPF",
+                        "in": "path"
+                    },
+                    {
+                        "description": "Address data",
+                        "name": "address_data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ResponseAddress"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/citizen/{CPF}/address/{ID}": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizen"
+                ],
+                "summary": "Update a specific Address",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CPF of the citizen",
+                        "name": "CPF",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Id of the Address",
+                        "name": "ID",
+                        "in": "path"
+                    },
+                    {
+                        "description": "Address data",
+                        "name": "address_data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ResponseAddress"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizen"
+                ],
+                "summary": "Delete a specific Address",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CPF of the citizen",
+                        "name": "CPF",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Id of the Address",
+                        "name": "ID",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ResponseAddress"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/citizen/{CPF}/debts": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizen"
+                ],
+                "summary": "Get a list of debts",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CPF of the citizen",
+                        "name": "CPF",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ResponseDebt"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizen"
+                ],
+                "summary": "Insert a new debt",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CPF of the citizen",
+                        "name": "CPF",
+                        "in": "path"
+                    },
+                    {
+                        "description": "Debt data",
+                        "name": "debt_data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Debt"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ResponseDebt"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/citizen/{CPF}/debts/{ID}": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizen"
+                ],
+                "summary": "Update a specific debt",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CPF of the citizen",
+                        "name": "CPF",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Id of the debt",
+                        "name": "ID",
+                        "in": "path"
+                    },
+                    {
+                        "description": "Debt data",
+                        "name": "debt_data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Debt"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ResponseDebt"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Citizen"
+                ],
+                "summary": "Delete a specific debt",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CPF of the citizen",
+                        "name": "CPF",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Id of the debt",
+                        "name": "ID",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ResponseDebt"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -107,13 +517,36 @@
                 }
             }
         },
+        "delivery.ResponseAddress": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Address"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "delivery.ResponseDebt": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Debt"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.Address": {
             "type": "object",
-            "required": [
-                "address",
-                "complement",
-                "postal_code"
-            ],
             "properties": {
                 "address": {
                     "type": "string"
@@ -154,22 +587,12 @@
         },
         "domain.Citizen": {
             "type": "object",
-            "required": [
-                "address",
-                "birthdate",
-                "cpf",
-                "debts",
-                "name"
-            ],
             "properties": {
                 "address": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.Address"
                     }
-                },
-                "birthdate": {
-                    "type": "string"
                 },
                 "cpf": {
                     "type": "string"
@@ -190,11 +613,6 @@
         },
         "domain.Debt": {
             "type": "object",
-            "required": [
-                "credit_taken_at",
-                "debtor_id",
-                "value"
-            ],
             "properties": {
                 "credit_taken_at": {
                     "type": "string"
