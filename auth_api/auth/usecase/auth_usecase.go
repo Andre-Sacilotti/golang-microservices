@@ -55,7 +55,7 @@ func (AuthUC *AuthUsecase) Authenticate(tokenstr string) (is_valid bool) {
 func (AuthUC *AuthUsecase) Login(user string, password string) (is_authenticated bool, token string) {
 
 	res, err := AuthUC.AuthRepo.Search(user)
-
+	fmt.Println(res)
 	if err != nil {
 		return false, ""
 	}
