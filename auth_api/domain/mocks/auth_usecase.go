@@ -34,9 +34,12 @@ func (AuthUC *AuthUsecase) Authenticate(tokenstr string) (is_valid bool) {
 }
 
 func (AuthUC *AuthUsecase) Login(user string, password string) (is_authenticated bool, token string) {
+	fmt.Println(user)
+	fmt.Println(password)
 	if user == "admin" {
 		TruePass := "$2a$15$UZKMN5zBXk.DOuzi6RtmvOBUElwtD.1ztXyKTr6mufUuaTHCnDro6"
 		err := bcrypt.CompareHashAndPassword([]byte(TruePass), []byte(password))
+		fmt.Println(err)
 		if err != nil {
 			return false, ""
 		}

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/Andre-Sacilotti/golang-credit-backend/auth_api/domain"
 	"gorm.io/gorm"
@@ -26,6 +25,6 @@ func (AuthRepo *mysqlAuthRepository) Search(user string) (res domain.Auth, err e
 		}
 		return
 	}
-	fmt.Println(auth)
+
 	return auth, err
 }

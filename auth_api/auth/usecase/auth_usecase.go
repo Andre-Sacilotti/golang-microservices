@@ -59,13 +59,16 @@ func (AuthUC *AuthUsecase) Login(user string, password string) (is_authenticated
 	if err != nil {
 		return false, ""
 	}
-
+	fmt.Println(user)
+	fmt.Println(res)
 	err = bcrypt.CompareHashAndPassword([]byte(res.Password), []byte(password))
 
 	if err != nil {
 		return false, ""
 	}
 
+	fmt.Println(err)
+	fmt.Println("user")
 	token, _ = generateToken(user)
 
 	return true, token
